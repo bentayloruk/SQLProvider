@@ -178,7 +178,12 @@ type internal MSAccessProvider() =
 
             let createParam (value:obj) =
                 let paramName = nextParam()
-                OleDbParameter(paramName,value):> IDbDataParameter
+                match value with
+                | :? DateTime as dtVal ->
+                    let param = OleDbParameter(paramName, OleDbType.DBDate) :> IDbDataParameter 
+                    param.Value <- dtVal
+                    param
+                | nonDtVal -> OleDbParameter(paramName, nonDtVal) :> IDbDataParameter
 
             let rec filterBuilder = function 
                 | [] -> ()
